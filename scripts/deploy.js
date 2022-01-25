@@ -4,6 +4,8 @@
 const { ethers } = require("hardhat");
 
 async function main(network) {
+    const { WMATICTESTNET } = require('../addresses_common');
+  
   console.log("network: ", network.name);
 
   const [deployer] = await ethers.getSigners();
@@ -35,7 +37,7 @@ async function main(network) {
 
   ////////////
 
-  const Ve = await ethers.getContractFactory("contracts/Ve_token/ve.sol:ve");
+  const Ve = await ethers.getContractFactory("contracts/ve.sol:ve");
   const ve = await Ve.deploy(token.address);
   await ve.deployed();
   console.log("ve deployed at", ve.address);
@@ -50,12 +52,9 @@ async function main(network) {
   ///////////
 
   const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
-  const baseV1Router = await BaseV1Router.deploy(
-    baseV1Factory.address,
-    deployerAddress
-  );
+  const baseV1Router = await BaseV1Router.deploy(baseV1Factory.address,WMATICTESTNET);
   await baseV1Router.deployed();
-  console.log("baseV1Router deployed at", baseV1Router.address);
+  console.log("baseV1Factory deployed at", baseV1Router.address);
 
   //DEPLOYING PAIRS
 
@@ -116,7 +115,7 @@ async function main(network) {
 
   ///////////
 
-  const VeDist = await ethers.getContractFactory("contracts/Ve_token/ve_dist.sol:ve_dist");
+  const VeDist = await ethers.getContractFactory("contracts/ve_dist.sol:ve_dist");
   const ve_dist = await VeDist.deploy();
   await ve_dist.deployed();
 

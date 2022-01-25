@@ -31,6 +31,10 @@ module.exports = {
       url: API,
       accounts: [`0x${PRIVATE_KEY}`],
     },
+    ftmtestnet: {
+      url: `https://rpc.testnet.fantom.network/`,
+      accounts: [`0x${PRIVATE_KEY}`],
+    },
     mumbai: {
       url: `https://rpc-mumbai.maticvigil.com`,
       accounts: [`0x${PRIVATE_KEY}`],
