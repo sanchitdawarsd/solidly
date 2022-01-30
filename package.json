@@ -8,5 +8,14 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.2",
     "hardhat": "^2.8.3"
+  },
+  "scripts": {
+    "test": "HARDHAT_NETWORK=mumbai npx hardhat run test/base.js",
+    "deployContracts": "HARDHAT_NETWORK=ftmtestnet npx hardhat run scripts/deploy.js",
+    "compile": "npx hardhat compile"
+  },
+  "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "dotenv": "^14.3.0"
   }
 }
