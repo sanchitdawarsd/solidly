@@ -11,7 +11,7 @@
   },
   "scripts": {
     "test": "HARDHAT_NETWORK=mumbai npx hardhat run test/base.js",
-    "deployContracts": "HARDHAT_NETWORK=ftmtestnet npx hardhat run scripts/deploy.js",
+    "deployContracts": "HARDHAT_NETWORK=ftmtestnet npx hardhat run scripts/deployer.js",
     "compile": "npx hardhat compile"
   },
   "dependencies": {
