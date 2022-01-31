@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.11;
+pragma solidity 0.8.11;
 
 library Math {
     function max(uint a, uint b) internal pure returns (uint) {
@@ -117,7 +117,7 @@ contract Bribe {
    mapping (address => uint) public rewardPerTokenNumCheckpoints;
 
     // simple re-entrancy check
-    uint _unlocked = 1;
+    uint internal _unlocked = 1;
     modifier lock() {
         require(_unlocked == 1);
         _unlocked = 2;
@@ -522,7 +522,7 @@ contract BaseV1Voter {
     event DistributeReward(address indexed sender, address indexed gauge, uint amount);
 
     // simple re-entrancy check
-    uint _unlocked = 1;
+    uint internal _unlocked = 1;
     modifier lock() {
         require(_unlocked == 1);
         _unlocked = 2;
@@ -556,7 +556,7 @@ contract BaseV1Voter {
     function _reset(uint _tokenId) internal {
         address[] storage _poolVote = poolVote[_tokenId];
         uint _poolVoteCnt = _poolVote.length;
-        uint _totalWeigth = 0;
+        uint _totalWeight = 0;
 
         for (uint i = 0; i < _poolVoteCnt; i ++) {
             address _pool = _poolVote[i];
@@ -564,14 +564,14 @@ contract BaseV1Voter {
 
             if (_votes > 0) {
                 _updateFor(gauges[_pool]);
-                _totalWeigth += _votes;
+                _totalWeight += _votes;
                 weights[_pool] -= _votes;
                 votes[_tokenId][_pool] -= _votes;
                 Bribe(bribes[gauges[_pool]])._withdraw(_votes, _tokenId);
                 emit Abstained(_tokenId, _votes);
             }
         }
-        totalWeight -= _totalWeigth;
+        totalWeight -= _totalWeight;
         usedWeights[_tokenId] = 0;
         delete poolVote[_tokenId];
     }
