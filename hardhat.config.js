@@ -5,19 +5,22 @@ const chalk = require("chalk");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 
-const defaultNetwork = "localhost"; // "hardhat" for tests
+const defaultNetwork = "bsctestnet"; // "hardhat" for tests
 const API = process.env.NODE_API;
 const PRIVATE_KEY = process.env.PRIVATEKEY;
+const PRIVATE_KEY2 = process.env.PRIVATEKEY2;
+const PRIVATE_KEY3 = process.env.PRIVATEKEY3;
 
 module.exports = {
   defaultNetwork,
   networks: {
     localhost: {
-      url: "http://localhost:8545", // uses account 0 of the hardhat node to deploy
+      url: `http://localhost:8545/`,
+      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     mainnet: {
       url: API,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     rinkeby: {
       url: API,
@@ -33,14 +36,14 @@ module.exports = {
     },
     ftmtestnet: {
       url: `https://rpc.testnet.fantom.network/`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     mumbai: {
       url: `https://rpc-mumbai.maticvigil.com`,
-      accounts: [`0x${PRIVATE_KEY}`],
+      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     bsctestnet: {
-      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
+      url: `https://data-seed-prebsc-1-s2.binance.org:8545/`,
       accounts: [`0x${PRIVATE_KEY}`],
     },
     bscmainnet: {

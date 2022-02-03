@@ -42,146 +42,146 @@ async function main(network) {
   ////////////
 
   //underlying token
-  const token = await Token.deploy("VE", "VE", 18, deployerAddress);
-  await token.deployed();
-  console.log("Underlying Token deployed at", token.address);
+  // const token = await Token.deploy("VE", "VE", 18, deployerAddress);
+  // await token.deployed();
+  // console.log("Underlying Token deployed at", token.address);
 
-  ////////////
+  // ////////////
 
-  const Ve = await ethers.getContractFactory("contracts/ve.sol:ve");
-  const ve = await Ve.deploy(token.address);
-  await ve.deployed();
-  console.log("ve deployed at", ve.address);
+  // const Ve = await ethers.getContractFactory("contracts/ve.sol:ve");
+  // const ve = await Ve.deploy(token.address);
+  // await ve.deployed();
+  // console.log("ve deployed at", ve.address);
 
-  ///////////
+  // ///////////
 
-  const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
-  const baseV1Factory = await BaseV1Factory.deploy();
-  await baseV1Factory.deployed();
-  console.log("baseV1Factory deployed at", baseV1Factory.address);
+  // const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
+  // const baseV1Factory = await BaseV1Factory.deploy();
+  // await baseV1Factory.deployed();
+  // console.log("baseV1Factory deployed at", baseV1Factory.address);
 
-  ///////////
+  // ///////////
 
-  const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
-  const baseV1Router = await BaseV1Router.deploy(
-    baseV1Factory.address,
-    WMATICTESTNET
-  );
-  await baseV1Router.deployed();
-  console.log("baseV1Router deployed at", baseV1Router.address);
+  // const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
+  // const baseV1Router = await BaseV1Router.deploy(
+  //   baseV1Factory.address,
+  //   WMATICTESTNET
+  // );
+  // await baseV1Router.deployed();
+  // console.log("baseV1Router deployed at", baseV1Router.address);
 
-  //DEPLOYING PAIRS
+  // //DEPLOYING PAIRS
 
-  const ust_1 = ethers.BigNumber.from("1000000");
-  const mim_1 = ethers.BigNumber.from("1000000000000000000");
-  const dai_1 = ethers.BigNumber.from("1000000000000000000");
-  await mim.approve(baseV1Router.address, mim_1);
-  await ust.approve(baseV1Router.address, ust_1);
-  await baseV1Router.addLiquidity(
-    mim.address,
-    ust.address,
-    true,
-    mim_1,
-    ust_1,
-    0,
-    0,
-    deployerAddress,
-    Date.now()
-  );
-  await dai.approve(baseV1Router.address, dai_1);
-  await ust.approve(baseV1Router.address, ust_1);
-  await baseV1Router.addLiquidity(
-    dai.address,
-    ust.address,
-    false,
-    dai_1,
-    ust_1,
-    0,
-    0,
-    deployerAddress,
-    Date.now()
-  );
-  await mim.approve(baseV1Router.address, mim_1);
-  await dai.approve(baseV1Router.address, dai_1);
-  await baseV1Router.addLiquidity(
-    mim.address,
-    dai.address,
-    true,
-    mim_1,
-    dai_1,
-    0,
-    0,
-    deployerAddress,
-    Date.now()
-  );
+  // const ust_1 = ethers.BigNumber.from("1000000");
+  // const mim_1 = ethers.BigNumber.from("1000000000000000000");
+  // const dai_1 = ethers.BigNumber.from("1000000000000000000");
+  // await mim.approve(baseV1Router.address, mim_1);
+  // await ust.approve(baseV1Router.address, ust_1);
+  // await baseV1Router.addLiquidity(
+  //   mim.address,
+  //   ust.address,
+  //   true,
+  //   mim_1,
+  //   ust_1,
+  //   0,
+  //   0,
+  //   deployerAddress,
+  //   Date.now()
+  // );
+  // await dai.approve(baseV1Router.address, dai_1);
+  // await ust.approve(baseV1Router.address, ust_1);
+  // await baseV1Router.addLiquidity(
+  //   dai.address,
+  //   ust.address,
+  //   false,
+  //   dai_1,
+  //   ust_1,
+  //   0,
+  //   0,
+  //   deployerAddress,
+  //   Date.now()
+  // );
+  // await mim.approve(baseV1Router.address, mim_1);
+  // await dai.approve(baseV1Router.address, dai_1);
+  // await baseV1Router.addLiquidity(
+  //   mim.address,
+  //   dai.address,
+  //   true,
+  //   mim_1,
+  //   dai_1,
+  //   0,
+  //   0,
+  //   deployerAddress,
+  //   Date.now()
+  // );
 
-  const BaseV1Pair = await ethers.getContractFactory("BaseV1Pair");
-  const address = await baseV1Factory.getPair(mim.address, ust.address, true);
-  const pair = await BaseV1Pair.attach(address);
-  const address2 = await baseV1Factory.getPair(dai.address, ust.address, false);
-  const pair2 = await BaseV1Pair.attach(address2);
-  const address3 = await baseV1Factory.getPair(mim.address, dai.address, true);
-  const pair3 = await BaseV1Pair.attach(address3);
+  // const BaseV1Pair = await ethers.getContractFactory("BaseV1Pair");
+  // const address = await baseV1Factory.getPair(mim.address, ust.address, true);
+  // const pair = await BaseV1Pair.attach(address);
+  // const address2 = await baseV1Factory.getPair(dai.address, ust.address, false);
+  // const pair2 = await BaseV1Pair.attach(address2);
+  // const address3 = await baseV1Factory.getPair(mim.address, dai.address, true);
+  // const pair3 = await BaseV1Pair.attach(address3);
 
-  console.log(
-    "PAIRS addresses MIM,UST & DAI,UST & MIM,DAI",
-    address,
-    address2,
-    address3
-  );
+  // console.log(
+  //   "PAIRS addresses MIM,UST & DAI,UST & MIM,DAI",
+  //   address,
+  //   address2,
+  //   address3
+  // );
 
-  ///////////
+  // ///////////
 
-  // maybe not needed to deploy
-  //   const BaseV1Pair = await ethers.getContractFactory("BaseV1Pair");
-  //   const baseV1Pair = await BaseV1Pair.deploy();
-  //   await baseV1Pair.deployed();
-  //   console.log("baseV1Pair deployed at", baseV1Pair.address);
+  // // maybe not needed to deploy
+  // //   const BaseV1Pair = await ethers.getContractFactory("BaseV1Pair");
+  // //   const baseV1Pair = await BaseV1Pair.deploy();
+  // //   await baseV1Pair.deployed();
+  // //   console.log("baseV1Pair deployed at", baseV1Pair.address);
 
-  ///////////
+  // ///////////
 
-  const BaseV1GaugeFactory = await ethers.getContractFactory(
-    "BaseV1GaugeFactory"
-  );
-  const gauge_factory = await BaseV1GaugeFactory.deploy();
-  await gauge_factory.deployed();
+  // const BaseV1GaugeFactory = await ethers.getContractFactory(
+  //   "BaseV1GaugeFactory"
+  // );
+  // const gauge_factory = await BaseV1GaugeFactory.deploy();
+  // await gauge_factory.deployed();
 
-  const BaseV1Voter = await ethers.getContractFactory("BaseV1Voter");
-  const baseV1Voter = await BaseV1Voter.deploy(
-    ve.address,
-    baseV1Factory.address,
-    gauge_factory.address
-  );
-  await baseV1Voter.deployed();
+  // const BaseV1Voter = await ethers.getContractFactory("BaseV1Voter");
+  // const baseV1Voter = await BaseV1Voter.deploy(
+  //   ve.address,
+  //   baseV1Factory.address,
+  //   gauge_factory.address
+  // );
+  // await baseV1Voter.deployed();
 
-  console.log(
-    "gauge_factory ||||| baseV1Voter deployed at",
-    gauge_factory.address,
-    "|||||",
-    baseV1Voter.address
-  );
+  // console.log(
+  //   "gauge_factory ||||| baseV1Voter deployed at",
+  //   gauge_factory.address,
+  //   "|||||",
+  //   baseV1Voter.address
+  // );
 
-  ///////////
+  // ///////////
 
-  const VeDist = await ethers.getContractFactory(
-    "contracts/ve_dist.sol:ve_dist"
-  );
-  const ve_dist = await VeDist.deploy(ve.address, token.address, deployerAddress);
-  await ve_dist.deployed();
+  // const VeDist = await ethers.getContractFactory(
+  //   "contracts/ve_dist.sol:ve_dist"
+  // );
+  // const ve_dist = await VeDist.deploy(ve.address, token.address, deployerAddress);
+  // await ve_dist.deployed();
 
-  console.log("ve_dist deployed at", ve_dist.address);
+  // console.log("ve_dist deployed at", ve_dist.address);
 
-  ///////////
+  // ///////////
 
-  const BaseV1Minter = await ethers.getContractFactory("BaseV1Minter");
-  const minter = await BaseV1Minter.deploy(
-    baseV1Voter.address,
-    ve.address,
-    ve_dist.address
-  );
-  await minter.deployed();
+  // const BaseV1Minter = await ethers.getContractFactory("BaseV1Minter");
+  // const minter = await BaseV1Minter.deploy(
+  //   baseV1Voter.address,
+  //   ve.address,
+  //   ve_dist.address
+  // );
+  // await minter.deployed();
 
-  console.log("minter deployed at", minter.address);
+  // console.log("minter deployed at", minter.address);
 
   ///////////
   //STAKING DEPLOYMENT OF PAIR ON WHICH UNDERLYING ASSET WILL BE GIVEN AS REWARD

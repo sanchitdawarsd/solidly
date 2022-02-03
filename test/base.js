@@ -47,16 +47,20 @@ describe("core", function () {
 
   it("deploy base coins", async function () {
     [owner, owner2, owner3] = await ethers.getSigners(3);
+    console.log(owner.address,owner2.address,owner3.address)
     token = await ethers.getContractFactory("Token");
     ust = await token.deploy('ust', 'ust', 6, owner.address);
+    console.log(ust.address,ethers.BigNumber.from("1000000000000000000"))
     await ust.mint(owner.address, ethers.BigNumber.from("1000000000000000000"));
     await ust.mint(owner2.address, ethers.BigNumber.from("1000000000000000000"));
     await ust.mint(owner3.address, ethers.BigNumber.from("1000000000000000000"));
     mim = await token.deploy('MIM', 'MIM', 18, owner.address);
+    console.log(mim.address,ethers.BigNumber.from("1000000000000000000000000000000"))
     await mim.mint(owner.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await mim.mint(owner2.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await mim.mint(owner3.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     dai = await token.deploy('DAI', 'DAI', 18, owner.address);
+    console.log(dai.address)
     await dai.mint(owner.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await dai.mint(owner2.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await dai.mint(owner3.address, ethers.BigNumber.from("1000000000000000000000000000000"));
@@ -64,6 +68,7 @@ describe("core", function () {
     await ve_underlying.mint(owner.address, ethers.BigNumber.from("20000000000000000000000000"));
     await ve_underlying.mint(owner2.address, ethers.BigNumber.from("10000000000000000000000000"));
     await ve_underlying.mint(owner3.address, ethers.BigNumber.from("10000000000000000000000000"));
+    console.log(ust.address,mim.address,dai.address,ve_underlying.address,"three coins and underlying address")
     vecontract = await ethers.getContractFactory("contracts/ve.sol:ve");
     ve = await vecontract.deploy(ve_underlying.address);
 
@@ -140,7 +145,7 @@ describe("core", function () {
     const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
     factory = await BaseV1Factory.deploy();
     await factory.deployed();
-
+    console.log(factory.address,"factory address")
     expect(await factory.allPairsLength()).to.equal(0);
   });
 
@@ -148,6 +153,7 @@ describe("core", function () {
     const BaseV1Router = await ethers.getContractFactory("BaseV1Router01");
     router = await BaseV1Router.deploy(factory.address, owner.address);
     await router.deployed();
+    console.log(router.address,"router address")
 
     expect(await router.factory()).to.equal(factory.address);
   });
@@ -326,6 +332,7 @@ describe("core", function () {
     const BaseV1Voter = await ethers.getContractFactory("BaseV1Voter");
     gauge_factory = await BaseV1Voter.deploy(ve.address, factory.address, gauges_factory.address);
     await gauge_factory.deployed();
+    console.log(gauge_factory.address,"gauge_factory address")
 
     await ve.setVoter(gauge_factory.address);
 
@@ -336,10 +343,12 @@ describe("core", function () {
     const VeDist = await ethers.getContractFactory("contracts/ve_dist.sol:ve_dist");
     ve_dist = await VeDist.deploy(ve.address, ve_underlying.address, owner.address);
     await ve_dist.deployed();
+    console.log(ve_dist.address,"ve_dist address")
 
     const BaseV1Minter = await ethers.getContractFactory("BaseV1Minter");
     minter = await BaseV1Minter.deploy(gauge_factory.address, ve.address, ve_dist.address);
     await minter.deployed();
+    console.log(minter.address,"minter address")
     await ve_dist.setDepositor(minter.address);
   });
 
@@ -353,6 +362,7 @@ describe("core", function () {
 
     sr = await ethers.getContractFactory("StakingRewards");
     staking = await sr.deploy(pair.address, ve_underlying.address);
+    console.log(staking.address,"staking address")
 
     const gauge_address = await gauge_factory.gauges(pair.address);
     const bribe_address = await gauge_factory.bribes(gauge_address);
@@ -542,6 +552,7 @@ describe("core", function () {
     const roots = await ethers.getContractFactory("roots");
     root = await roots.deploy(metadata.dec0, metadata.dec1, metadata.st, metadata.t0, metadata.t1);
     await root.deployed();
+    console.log(root.address,"root address")
 
     const before = await mim.balanceOf(owner.address);
     const expected_output_pair = await pair.getAmountOut(ust_1, ust.address);
