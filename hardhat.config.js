@@ -5,7 +5,7 @@ const chalk = require("chalk");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 
-const defaultNetwork = "localhost"; // "hardhat" for tests
+const defaultNetwork = "ftmtestnet"; // "hardhat" for tests
 const API = process.env.NODE_API;
 const PRIVATE_KEY = process.env.PRIVATEKEY;
 const PRIVATE_KEY2 = process.env.PRIVATEKEY2;

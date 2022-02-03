@@ -11,7 +11,7 @@
     "mocha": "^9.2.0"
   },
   "scripts": {
-    "test": "mocha --timeout 10000000",
+    "test": "mocha --timeout 10000000000",
     "deployContracts": "HARDHAT_NETWORK=ftmtestnet npx hardhat run scripts/Deployer.js",
     "compile": "npx hardhat compile"
   },

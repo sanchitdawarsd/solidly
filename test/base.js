@@ -93,6 +93,7 @@ describe("core", function () {
 
   it("ve views", async function () {
     const block = await ve.block_number();
+    console.log(block)
     expect(await ve.balanceOfAtNFT(1, block)).to.equal(await ve.balanceOfNFT(1));
     expect(await ve.totalSupplyAt(block)).to.equal(await ve.totalSupply());
 
