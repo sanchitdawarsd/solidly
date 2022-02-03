@@ -78,11 +78,58 @@ contract Gauge {
     address[] public rewards;
     mapping(address => bool) public isReward;
 
+    /// @notice A checkpoint for marking balance
+    struct Checkpoint {
+        uint timestamp;
+        uint balanceOf;
+    }
+
+    /// @notice A checkpoint for marking reward rate
+    struct RewardPerTokenCheckpoint {
+        uint timestamp;
+        uint rewardPerToken;
+    }
+
+    /// @notice A checkpoint for marking supply
+    struct SupplyCheckpoint {
+        uint timestamp;
+        uint supply;
+    }
+
+    /// @notice A record of balance checkpoints for each account, by index
+    mapping (address => mapping (uint => Checkpoint)) public checkpoints;
+    /// @notice The number of checkpoints for each account
+    mapping (address => uint) public numCheckpoints;
+    /// @notice A record of balance checkpoints for each token, by index
+    mapping (uint => SupplyCheckpoint) public supplyCheckpoints;
+    /// @notice The number of checkpoints
+    uint public supplyNumCheckpoints;
+    /// @notice A record of balance checkpoints for each token, by index
+    mapping (address => mapping (uint => RewardPerTokenCheckpoint)) public rewardPerTokenCheckpoints;
+    /// @notice The number of checkpoints for each token
+    mapping (address => uint) public rewardPerTokenNumCheckpoints;
+
     event Deposit(address indexed from, uint tokenId, uint amount);
     event Withdraw(address indexed from, uint tokenId, uint amount);
     event NotifyReward(address indexed from, address indexed reward, uint amount);
     event ClaimFees(address indexed from, uint claimed0, uint claimed1);
     event ClaimRewards(address indexed from, address indexed reward, uint amount);
+
+    constructor(address _stake, address _bribe, address  __ve, address _voter) {
+        stake = _stake;
+        bribe = _bribe;
+        _ve = __ve;
+        voter = _voter;
+    }
+
+    // simple re-entrancy check
+    uint internal _unlocked = 1;
+    modifier lock() {
+        require(_unlocked == 1);
+        _unlocked = 2;
+        _;
+        _unlocked = 1;
+    }
 
     function claimFees() external returns (uint claimed0, uint claimed1) {
         (claimed0, claimed1) = IBaseV1Core(stake).claimFees();
@@ -95,66 +142,13 @@ contract Gauge {
         emit ClaimFees(msg.sender, claimed0, claimed1);
     }
 
-
-    /// @notice A checkpoint for marking balance
-    struct Checkpoint {
-       uint timestamp;
-       uint balanceOf;
-    }
-
-    /// @notice A checkpoint for marking reward rate
-    struct RewardPerTokenCheckpoint {
-       uint timestamp;
-       uint rewardPerToken;
-    }
-
-    /// @notice A checkpoint for marking supply
-    struct SupplyCheckpoint {
-       uint timestamp;
-       uint supply;
-    }
-
-    /// @notice A record of balance checkpoints for each account, by index
-    mapping (address => mapping (uint => Checkpoint)) public checkpoints;
-
-    /// @notice The number of checkpoints for each account
-    mapping (address => uint) public numCheckpoints;
-
-    /// @notice A record of balance checkpoints for each token, by index
-    mapping (uint => SupplyCheckpoint) public supplyCheckpoints;
-
-    /// @notice The number of checkpoints
-    uint public supplyNumCheckpoints;
-
-    /// @notice A record of balance checkpoints for each token, by index
-    mapping (address => mapping (uint => RewardPerTokenCheckpoint)) public rewardPerTokenCheckpoints;
-
-    /// @notice The number of checkpoints for each token
-    mapping (address => uint) public rewardPerTokenNumCheckpoints;
-
-    // simple re-entrancy check
-    uint internal _unlocked = 1;
-    modifier lock() {
-        require(_unlocked == 1);
-        _unlocked = 2;
-        _;
-        _unlocked = 1;
-    }
-
-    constructor(address _stake, address _bribe, address  __ve, address _voter) {
-        stake = _stake;
-        bribe = _bribe;
-        _ve = __ve;
-        voter = _voter;
-    }
-
     /**
-     * @notice Determine the prior balance for an account as of a block number
-     * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
-     * @param account The address of the account to check
-     * @param timestamp The timestamp to get the balance at
-     * @return The balance the account had as of the given block
-     */
+    * @notice Determine the prior balance for an account as of a block number
+    * @dev Block number must be a finalized block or else this function will revert to prevent misinformation.
+    * @param account The address of the account to check
+    * @param timestamp The timestamp to get the balance at
+    * @return The balance the account had as of the given block
+    */
     function getPriorBalanceIndex(address account, uint timestamp) public view returns (uint) {
         uint nCheckpoints = numCheckpoints[account];
         if (nCheckpoints == 0) {
@@ -252,38 +246,38 @@ contract Gauge {
     }
 
     function _writeCheckpoint(address account, uint balance) internal {
-      uint _timestamp = block.timestamp;
-      uint _nCheckPoints = numCheckpoints[account];
+        uint _timestamp = block.timestamp;
+        uint _nCheckPoints = numCheckpoints[account];
 
-      if (_nCheckPoints > 0 && checkpoints[account][_nCheckPoints - 1].timestamp == _timestamp) {
-          checkpoints[account][_nCheckPoints - 1].balanceOf = balance;
-      } else {
-          checkpoints[account][_nCheckPoints] = Checkpoint(_timestamp, balance);
-          numCheckpoints[account] = _nCheckPoints + 1;
-      }
+        if (_nCheckPoints > 0 && checkpoints[account][_nCheckPoints - 1].timestamp == _timestamp) {
+            checkpoints[account][_nCheckPoints - 1].balanceOf = balance;
+        } else {
+            checkpoints[account][_nCheckPoints] = Checkpoint(_timestamp, balance);
+            numCheckpoints[account] = _nCheckPoints + 1;
+        }
     }
 
     function _writeRewardPerTokenCheckpoint(address token, uint reward, uint timestamp) internal {
-      uint _nCheckPoints = rewardPerTokenNumCheckpoints[token];
+        uint _nCheckPoints = rewardPerTokenNumCheckpoints[token];
 
-      if (_nCheckPoints > 0 && rewardPerTokenCheckpoints[token][_nCheckPoints - 1].timestamp == timestamp) {
-        rewardPerTokenCheckpoints[token][_nCheckPoints - 1].rewardPerToken = reward;
-      } else {
-          rewardPerTokenCheckpoints[token][_nCheckPoints] = RewardPerTokenCheckpoint(timestamp, reward);
-          rewardPerTokenNumCheckpoints[token] = _nCheckPoints + 1;
-      }
+        if (_nCheckPoints > 0 && rewardPerTokenCheckpoints[token][_nCheckPoints - 1].timestamp == timestamp) {
+            rewardPerTokenCheckpoints[token][_nCheckPoints - 1].rewardPerToken = reward;
+        } else {
+            rewardPerTokenCheckpoints[token][_nCheckPoints] = RewardPerTokenCheckpoint(timestamp, reward);
+            rewardPerTokenNumCheckpoints[token] = _nCheckPoints + 1;
+        }
     }
 
     function _writeSupplyCheckpoint() internal {
-      uint _nCheckPoints = supplyNumCheckpoints;
-      uint _timestamp = block.timestamp;
+        uint _nCheckPoints = supplyNumCheckpoints;
+        uint _timestamp = block.timestamp;
 
-      if (_nCheckPoints > 0 && supplyCheckpoints[_nCheckPoints - 1].timestamp == _timestamp) {
-        supplyCheckpoints[_nCheckPoints - 1].supply = derivedSupply;
-      } else {
-          supplyCheckpoints[_nCheckPoints] = SupplyCheckpoint(_timestamp, derivedSupply);
-          supplyNumCheckpoints = _nCheckPoints + 1;
-      }
+        if (_nCheckPoints > 0 && supplyCheckpoints[_nCheckPoints - 1].timestamp == _timestamp) {
+            supplyCheckpoints[_nCheckPoints - 1].supply = derivedSupply;
+        } else {
+            supplyCheckpoints[_nCheckPoints] = SupplyCheckpoint(_timestamp, derivedSupply);
+            supplyNumCheckpoints = _nCheckPoints + 1;
+        }
     }
 
     function rewardsListLength() external view returns (uint) {
@@ -293,11 +287,6 @@ contract Gauge {
     // returns the last time the reward was modified or periodFinish if the reward has ended
     function lastTimeRewardApplicable(address token) public view returns (uint) {
         return Math.min(block.timestamp, periodFinish[token]);
-    }
-
-    function batchUserRewards(address token, address account, uint maxRuns) external {
-        (rewardPerTokenStored[token], lastUpdateTime[token]) = _updateRewardPerToken(token);
-        (userRewards[token][account], lastEarn[token][account]) = _batchUserRewards(token, account, maxRuns);
     }
 
     function getReward(address account, address[] memory tokens) external lock {
@@ -416,11 +405,11 @@ contract Gauge {
             for (uint i = _startIndex; i < _endIndex-1; i++) {
                 SupplyCheckpoint memory sp0 = supplyCheckpoints[i];
                 if (sp0.supply > 0) {
-                  SupplyCheckpoint memory sp1 = supplyCheckpoints[i+1];
-                  (uint _reward, uint _endTime) = _calcRewardPerToken(token, sp1.timestamp, sp0.timestamp, sp0.supply, _startTimestamp);
-                  reward += _reward;
-                  _writeRewardPerTokenCheckpoint(token, reward, _endTime);
-                  _startTimestamp = _endTime;
+                    SupplyCheckpoint memory sp1 = supplyCheckpoints[i+1];
+                    (uint _reward, uint _endTime) = _calcRewardPerToken(token, sp1.timestamp, sp0.timestamp, sp0.supply, _startTimestamp);
+                    reward += _reward;
+                    _writeRewardPerTokenCheckpoint(token, reward, _endTime);
+                    _startTimestamp = _endTime;
                 }
             }
         }
@@ -573,21 +562,21 @@ contract Gauge {
     function _safeTransfer(address token, address to, uint256 value) internal {
         require(token.code.length > 0);
         (bool success, bytes memory data) =
-            token.call(abi.encodeWithSelector(erc20.transfer.selector, to, value));
+        token.call(abi.encodeWithSelector(erc20.transfer.selector, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
     function _safeTransferFrom(address token, address from, address to, uint256 value) internal {
         require(token.code.length > 0);
         (bool success, bytes memory data) =
-            token.call(abi.encodeWithSelector(erc20.transferFrom.selector, from, to, value));
+        token.call(abi.encodeWithSelector(erc20.transferFrom.selector, from, to, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
     }
 
     function _safeApprove(address token, address spender, uint256 value) internal {
         require(token.code.length > 0);
         (bool success, bytes memory data) =
-            token.call(abi.encodeWithSelector(erc20.approve.selector, spender, value));
+        token.call(abi.encodeWithSelector(erc20.approve.selector, spender, value));
         require(success && (data.length == 0 || abi.decode(data, (bool))));
     }
 }
