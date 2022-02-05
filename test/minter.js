@@ -44,8 +44,12 @@ describe("minter", function () {
     await router.deployed();
     const BaseV1GaugeFactory = await ethers.getContractFactory("BaseV1GaugeFactory");
     gauges_factory = await BaseV1GaugeFactory.deploy();
+    await gauges_factory.deployed();
+    const BaseV1BribeFactory = await ethers.getContractFactory("BaseV1BribeFactory");
+    const bribe_factory = await BaseV1BribeFactory.deploy();
+    await bribe_factory.deployed();
     const BaseV1Voter = await ethers.getContractFactory("BaseV1Voter");
-    const gauge_factory = await BaseV1Voter.deploy(ve.address, factory.address, gauges_factory.address);
+    const gauge_factory = await BaseV1Voter.deploy(ve.address, factory.address, gauges_factory.address, bribe_factory.address);
     await gauge_factory.deployed();
     await ve_underlying.approve(ve.address, ethers.BigNumber.from("1000000000000000000"));
     await ve.create_lock(ethers.BigNumber.from("1000000000000000000"), 4 * 365 * 86400);
@@ -68,7 +72,7 @@ describe("minter", function () {
 
     const pair = await router.pairFor(mim.address, ve_underlying.address, false);
 
-
+    await ve_underlying.approve(gauge_factory.address, ethers.BigNumber.from("500000000000000000000000"));
     await gauge_factory.createGauge(pair);
     expect(await ve.balanceOfNFT(1)).to.above(ethers.BigNumber.from("995063075414519385"));
     expect(await ve_underlying.balanceOf(ve.address)).to.be.equal(ethers.BigNumber.from("1000000000000000000"));

@@ -349,8 +349,12 @@ describe("core", function () {
   it("deploy BaseV1Voter", async function () {
     const BaseV1GaugeFactory = await ethers.getContractFactory("BaseV1GaugeFactory");
     gauges_factory = await BaseV1GaugeFactory.deploy();
+    await gauges_factory.deployed();
+    const BaseV1BribeFactory = await ethers.getContractFactory("BaseV1BribeFactory");
+    const bribe_factory = await BaseV1BribeFactory.deploy();
+    await bribe_factory.deployed();
     const BaseV1Voter = await ethers.getContractFactory("BaseV1Voter");
-    gauge_factory = await BaseV1Voter.deploy(ve.address, factory.address, gauges_factory.address);
+    gauge_factory = await BaseV1Voter.deploy(ve.address, factory.address, gauges_factory.address, bribe_factory.address);
     await gauge_factory.deployed();
     console.log(gauge_factory.address,"gauge_factory address")
 
@@ -375,6 +379,7 @@ describe("core", function () {
   it("deploy BaseV1Factory gauge", async function () {
     const pair_1000 = ethers.BigNumber.from("1000000000");
 
+    await ve_underlying.approve(gauge_factory.address, ethers.BigNumber.from("1500000000000000000000000"));
     await gauge_factory.createGauge(pair.address);
     await gauge_factory.createGauge(pair2.address);
     await gauge_factory.createGauge(pair3.address);
