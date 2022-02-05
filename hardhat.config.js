@@ -15,7 +15,7 @@ module.exports = {
   defaultNetwork,
   networks: {
     localhost: {
-      url: `https://data-seed-prebsc-1-s2.binance.org:8545/`,
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
       accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     mainnet: {
@@ -30,9 +30,9 @@ module.exports = {
       url: API,
       accounts: [`0x${PRIVATE_KEY}`],
     },
-    ropsten: {
-      url: API,
-      accounts: [`0x${PRIVATE_KEY}`],
+    goerli: {
+      url: "https://goerli.infura.io/v3/19de54b594234ffb978a4e81f18a9827",
+      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     ftmtestnet: {
       url: `https://rpc.testnet.fantom.network/`,
@@ -41,9 +41,11 @@ module.exports = {
     mumbai: {
       url: `https://rpc-mumbai.maticvigil.com`,
       accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
+      gas: 19000000,
+      gasPrice: 100000000000,
     },
     bsctestnet: {
-      url: `https://data-seed-prebsc-1-s2.binance.org:8545/`,
+      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
       accounts: [`0x${PRIVATE_KEY}`],
     },
     bscmainnet: {

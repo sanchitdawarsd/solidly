@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, network } = require("hardhat");
 
 function getCreate2Address(
   factoryAddress,
@@ -46,8 +46,14 @@ describe("core", function () {
   let owner3;
 
   it("deploy base coins", async function () {
+    
     [owner, owner2, owner3] = await ethers.getSigners(3);
-    console.log(owner.address,owner2.address,owner3.address)
+
+    await network.provider.send("evm_increaseTime", [691200])
+    await network.provider.send("evm_mine")
+
+   
+
     token = await ethers.getContractFactory("Token");
     ust = await token.deploy('ust', 'ust', 6, owner.address);
     console.log(ust.address,ethers.BigNumber.from("1000000000000000000"))

@@ -1,5 +1,5 @@
 const { expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers ,network} = require("hardhat");
 
 function getCreate2Address(
   factoryAddress,
