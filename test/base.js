@@ -225,6 +225,10 @@ describe("core", function () {
     await mim.transfer(pair.address, mim_1);
     await pair.mint(owner.address);
     expect(await pair.getAmountOut(ust_1, ust.address)).to.equal(ethers.BigNumber.from("982117769725505988"));
+    const output = await router.getAmountOut(ust_1, ust.address, mim.address);
+    expect(await pair.getAmountOut(ust_1, ust.address)).to.equal(output.amount);
+    expect(output.stable).to.equal(true);
+    expect(await router.isPair(pair.address)).to.equal(true);
   });
 
   it("mint & burn tokens for pair mim-ust owner2", async function () {
@@ -245,13 +249,26 @@ describe("core", function () {
     const expected_2000 = ethers.BigNumber.from("2000000000000");
     await ust.approve(router.address, ust_1000);
     await mim.approve(router.address, mim_1000);
-    await router.addLiquidity(mim.address, ust.address, true, mim_1000, ust_1000, mim_1000, ust_1000, owner.address, Date.now());
+    const expected = await router.quoteAddLiquidity(mim.address, ust.address, true, mim_1000, ust_1000);
+    await router.addLiquidity(mim.address, ust.address, true, mim_1000, ust_1000, expected.amountA, expected.amountB, owner.address, Date.now());
     await ust.approve(router.address, ust_1000);
     await mim.approve(router.address, mim_1000);
     await router.addLiquidity(mim.address, ust.address, false, mim_1000, ust_1000, mim_1000, ust_1000, owner.address, Date.now());
     await dai.approve(router.address, dai_100000000);
     await mim.approve(router.address, mim_100000000);
     await router.addLiquidity(mim.address, dai.address, true, mim_100000000, dai_100000000, 0, 0, owner.address, Date.now());
+  });
+
+  it("BaseV1Router01 removeLiquidity", async function () {
+    const ust_1000 = ethers.BigNumber.from("100000000000");
+    const mim_1000 = ethers.BigNumber.from("100000000000000000000000");
+    const mim_100000000 = ethers.BigNumber.from("100000000000000000000000000");
+    const dai_100000000 = ethers.BigNumber.from("100000000000000000000000000");
+    const expected_2000 = ethers.BigNumber.from("2000000000000");
+    await ust.approve(router.address, ust_1000);
+    await mim.approve(router.address, mim_1000);
+    const expected = await router.quoteAddLiquidity(mim.address, ust.address, true, mim_1000, ust_1000);
+    const output = await router.quoteRemoveLiquidity(mim.address, ust.address, true, ust_1000);
   });
 
   it("BaseV1Router01 addLiquidity owner2", async function () {
@@ -490,20 +507,20 @@ describe("core", function () {
   it("vote hacking", async function () {
     await gauge_factory.vote(1, [pair.address, pair.address, pair.address, pair.address], [5000,5000,5000,5000]);
     expect(await gauge_factory.usedWeights(1)).to.closeTo((await ve.balanceOfNFT(1)), 1000);
-    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.votes(1, pair.address));
+    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.forVotes(1, pair.address));
     await gauge_factory.reset(1);
     expect(await gauge_factory.usedWeights(1)).to.below(await ve.balanceOfNFT(1));
     expect(await gauge_factory.usedWeights(1)).to.equal(0);
-    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.votes(1, pair.address));
+    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.forVotes(1, pair.address));
     expect(await bribe.balanceOf(1)).to.equal(0);
   });
 
   it("gauge poke hacking", async function () {
     expect(await gauge_factory.usedWeights(1)).to.equal(0);
-    expect(await gauge_factory.votes(1, pair.address)).to.equal(0);
+    expect(await gauge_factory.forVotes(1, pair.address)).to.equal(0);
     await gauge_factory.poke(1);
     expect(await gauge_factory.usedWeights(1)).to.equal(0);
-    expect(await gauge_factory.votes(1, pair.address)).to.equal(0);
+    expect(await gauge_factory.forVotes(1, pair.address)).to.equal(0);
   });
 
   it("gauge vote & bribe balanceOf", async function () {
@@ -517,23 +534,23 @@ describe("core", function () {
 
   it("gauge poke hacking", async function () {
     const weight_before = (await gauge_factory.usedWeights(1));
-    const votes_before = (await gauge_factory.votes(1, pair.address));
+    const votes_before = (await gauge_factory.forVotes(1, pair.address));
     await gauge_factory.poke(1);
     expect(await gauge_factory.usedWeights(1)).to.be.below(weight_before);
-    expect(await gauge_factory.votes(1, pair.address)).to.be.below(votes_before);
+    expect(await gauge_factory.forVotes(1, pair.address)).to.be.below(votes_before);
   });
 
   it("vote hacking break mint", async function () {
     await gauge_factory.vote(1, [pair.address, pair.address, pair.address, pair.address], [5000,5000,5000,5000]);
 
     expect(await gauge_factory.usedWeights(1)).to.closeTo((await ve.balanceOfNFT(1)), 1000);
-    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.votes(1, pair.address));
+    expect(await bribe.balanceOf(1)).to.equal(await gauge_factory.forVotes(1, pair.address));
   });
 
   it("gauge poke hacking", async function () {
-    expect(await gauge_factory.usedWeights(1)).to.equal(await gauge_factory.votes(1, pair.address));
+    expect(await gauge_factory.usedWeights(1)).to.equal(await gauge_factory.forVotes(1, pair.address));
     await gauge_factory.poke(1);
-    expect(await gauge_factory.usedWeights(1)).to.equal(await gauge_factory.votes(1, pair.address));
+    expect(await gauge_factory.usedWeights(1)).to.equal(await gauge_factory.forVotes(1, pair.address));
   });
 
   it("gauge distribute based on voting", async function () {
@@ -648,9 +665,8 @@ describe("core", function () {
   });
 
   it("gauge claim rewards", async function () {
-    console.log(owner.address);
-    console.log(await ve.ownerOf(1));
-    console.log(await ve.isApprovedOrOwner(owner.address, 1));
+    expect(owner.address).to.equal(await ve.ownerOf(1));
+    expect(await ve.isApprovedOrOwner(owner.address, 1)).to.equal(true);
     await gauge.withdraw(await gauge.balanceOf(owner.address));
     await staking.withdraw(await staking._balances(owner.address));
     const pair_1000 = ethers.BigNumber.from("1000000000");
@@ -735,6 +751,8 @@ describe("core", function () {
   });
 
   it("ve decay", async function () {
+    await gauge_factory.claimBribes([bribe.address], [[dai.address]], 1);
+    await gauge_factory.claimFees([bribe.address], [[dai.address]], 1);
     const supply = await ve.totalSupply();
     expect(supply).to.be.above(0);
     await network.provider.send("evm_increaseTime", [4*365*86400])
@@ -809,7 +827,9 @@ describe("core", function () {
     const claimable = await gauge_factory.claimable(gauge.address);
     await ve_underlying.approve(staking.address, claimable);
     await staking.notifyRewardAmount(claimable);
+    await gauge_factory.updateFor([gauge.address]);
     await gauge_factory.distro();
+    await gauge_factory.claimRewards([gauge.address], [[ve_underlying.address]]);
     expect(await gauge.rewardRate(ve_underlying.address)).to.be.equal(await staking.rewardRate());
     console.log(await gauge.rewardPerTokenStored(ve_underlying.address))
   });

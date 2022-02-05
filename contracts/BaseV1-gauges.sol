@@ -134,10 +134,14 @@ contract Gauge {
     function claimFees() external returns (uint claimed0, uint claimed1) {
         (claimed0, claimed1) = IBaseV1Core(stake).claimFees();
         (address _token0, address _token1) = IBaseV1Core(stake).tokens();
-        _safeApprove(_token0, bribe, claimed0);
-        _safeApprove(_token1, bribe, claimed1);
-        IBribe(bribe).notifyRewardAmount(_token0, claimed0);
-        IBribe(bribe).notifyRewardAmount(_token1, claimed1);
+        if (claimed0 > 0) {
+            _safeApprove(_token0, bribe, claimed0);
+            IBribe(bribe).notifyRewardAmount(_token0, claimed0);
+        }
+        if (claimed1 > 0) {
+            _safeApprove(_token1, bribe, claimed1);
+            IBribe(bribe).notifyRewardAmount(_token1, claimed1);
+        }
 
         emit ClaimFees(msg.sender, claimed0, claimed1);
     }
@@ -332,28 +336,6 @@ contract Gauge {
             _adjusted = (totalSupply * _adjusted / _supply) * 60 / 100;
         }
         return Math.min((_derived + _adjusted), _balance);
-    }
-
-    function _batchUserRewards(address token, address account, uint maxRuns) internal view returns (uint, uint) {
-        uint _startTimestamp = lastEarn[token][account];
-        if (numCheckpoints[account] == 0) {
-            return (userRewards[token][account], _startTimestamp);
-        }
-
-        uint _startIndex = getPriorBalanceIndex(account, _startTimestamp);
-        uint _endIndex = Math.min(numCheckpoints[account]-1, maxRuns);
-
-        uint reward = userRewards[token][account];
-        for (uint i = _startIndex; i < _endIndex; i++) {
-            Checkpoint memory cp0 = checkpoints[account][i];
-            Checkpoint memory cp1 = checkpoints[account][i+1];
-            (uint _rewardPerTokenStored0,) = getPriorRewardPerToken(token, cp0.timestamp);
-            (uint _rewardPerTokenStored1,) = getPriorRewardPerToken(token, cp1.timestamp);
-            reward += cp0.balanceOf * (_rewardPerTokenStored1 - _rewardPerTokenStored0) / PRECISION;
-            _startTimestamp = cp1.timestamp;
-        }
-
-        return (reward, _startTimestamp);
     }
 
     function batchRewardPerToken(address token, uint maxRuns) external {
