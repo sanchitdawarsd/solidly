@@ -49,11 +49,6 @@ describe("core", function () {
     
     [owner, owner2, owner3] = await ethers.getSigners(3);
 
-    await network.provider.send("evm_increaseTime", [691200])
-    await network.provider.send("evm_mine")
-
-   
-
     token = await ethers.getContractFactory("Token");
     ust = await token.deploy('ust', 'ust', 6, owner.address);
     console.log(ust.address,ethers.BigNumber.from("1000000000000000000"))
@@ -77,6 +72,7 @@ describe("core", function () {
     console.log(ust.address,mim.address,dai.address,ve_underlying.address,"three coins and underlying address")
     vecontract = await ethers.getContractFactory("contracts/ve.sol:ve");
     ve = await vecontract.deploy(ve_underlying.address);
+    console.log(ve.address,"ve address")
 
     await ust.deployed();
     await mim.deployed();

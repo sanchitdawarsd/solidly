@@ -5,7 +5,7 @@ const chalk = require("chalk");
 require("@nomiclabs/hardhat-etherscan");
 require("@nomiclabs/hardhat-waffle");
 
-const defaultNetwork = "ftmtestnet"; // "hardhat" for tests
+const defaultNetwork = "localhost"; // "hardhat" for tests
 const API = process.env.NODE_API;
 const PRIVATE_KEY = process.env.PRIVATEKEY;
 const PRIVATE_KEY2 = process.env.PRIVATEKEY2;
@@ -15,11 +15,10 @@ module.exports = {
   defaultNetwork,
   networks: {
     localhost: {
-      url: `https://data-seed-prebsc-1-s1.binance.org:8545/`,
-      accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
+      url: "http://localhost:8545", // uses account 0 of the hardhat node to deploy
     },
     mainnet: {
-      url: API,
+      url: "https://eth-mainnet.alchemyapi.io/v2/zrGuVBntYhj9Y5wY_xRfExYtS3CwISv3",
       accounts: [`0x${PRIVATE_KEY}`,`0x${PRIVATE_KEY2}`,`0x${PRIVATE_KEY3}`],
     },
     rinkeby: {
