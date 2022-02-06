@@ -1,55 +1,100 @@
-const { expect } = require("chai");
-const { ethers, network } = require("hardhat");
+import { expect } from "chai";
+import { ethers, network } from "hardhat";
+import {SignerWithAddress} from "@nomiclabs/hardhat-ethers/signers";
+import { getAddress, solidityPack } from "ethers/lib/utils";
+import {
+  Erc20,
+  BaseV1,
+  BaseV1Factory,
+  BaseV1Fees,
+  BaseV1Pair,
+  BaseV1GaugeFactory,
+  Gauge,
+  Bribe,
+  StakingRewards,
+  BaseV1Minter,
+  BaseV1Voter,
+  BaseV1Router01,
+  Ve,
+  VeDist,
+  Token,
+  Underlying,
+  BaseV1__factory,
+  BaseV1Factory__factory,
+  BaseV1Fees__factory,
+  BaseV1Pair__factory,
+  BaseV1GaugeFactory__factory,
+  Gauge__factory,
+  Bribe__factory,
+  StakingRewards__factory,
+  BaseV1Minter__factory,
+  BaseV1Voter__factory,
+  BaseV1Router01__factory,
+  Ve__factory,
+  VeDist__factory,
+  Token__factory,
+  Underlying__factory,
 
-function getCreate2Address(
-  factoryAddress,
-  [tokenA, tokenB],
-  bytecode
-) {
-  const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
-  const create2Inputs = [
-    '0xff',
-    factoryAddress,
-    keccak256(solidityPack(['address', 'address'], [token0, token1])),
-    keccak256(bytecode)
-  ]
-  const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
-  return getAddress(`0x${keccak256(sanitizedInputs).slice(-40)}`)
-}
+} from "../typechain";
+
+import { ContractFactory } from "ethers";
+
+// function getCreate2Address(
+//   factoryAddress,
+//   [tokenA, tokenB],
+//   bytecode
+// ) {
+//   const [token0, token1] = tokenA < tokenB ? [tokenA, tokenB] : [tokenB, tokenA]
+//   const create2Inputs = [
+//     '0xff',
+//     factoryAddress,
+//     utils.keccak256(solidityPack(['address', 'address'], [token0, token1])),
+//     utils.keccak256(bytecode)
+//   ]
+//   const sanitizedInputs = `0x${create2Inputs.map(i => i.slice(2)).join('')}`
+//   return getAddress(`0x${utils.keccak256(sanitizedInputs).slice(-40)}`)
+// }
 
 describe("core", function () {
 
-  let token;
-  let ust;
-  let mim;
-  let dai;
-  let ve_underlying;
-  let ve;
-  let factory;
-  let router;
-  let pair;
-  let pair2;
-  let pair3;
-  let owner;
-  let gauge_factory;
-  let gauge;
-  let gauge2;
-  let gauge3;
-  let bribe;
-  let bribe2;
-  let bribe3;
-  let minter;
-  let ve_dist;
-  let library;
-  let staking;
-  let owner2;
-  let owner3;
+ // let token: Token;
+  let token0: String;
+  let token1: String;
+  let ust: Token;
+  let mim: Token;;
+  let dai: Token;;
+  let ve_underlying: Token;
+  let ve:Ve;
+  let factory:BaseV1Factory;
+  let router:BaseV1Router01;
+  let pair:BaseV1Pair;
+  let pair2:BaseV1Pair;
+  let pair3:BaseV1Pair;
+  let owner:SignerWithAddress;
+  let gauge_factory:BaseV1Voter;
+  let gauges_factory:BaseV1GaugeFactory;
+  let gauge:Gauge;
+  let gauge2:Gauge;
+  let gauge3:Gauge;
+  let bribe:Bribe;
+  let bribe2:Bribe;
+  let bribe3:Bribe;
+  let minter:BaseV1Minter;
+  let ve_dist:VeDist;
+  let staking:StakingRewards;
+  let sr:StakingRewards;
+  let owner2:SignerWithAddress;
+  let owner3:SignerWithAddress;
+  let vecontract:Ve;
 
-  it("deploy base coins", async function () {
+
+  it("deploy base coins", async function() {
     
-    [owner, owner2, owner3] = await ethers.getSigners(3);
+    owner = (await ethers.getSigners())[0];
+    owner2 =  (await ethers.getSigners())[1];
+    owner3 =  (await ethers.getSigners())[2];
 
-    token = await ethers.getContractFactory("Token");
+    const token = await ethers.getContractFactory("Token") as Token__factory;
     ust = await token.deploy('ust', 'ust', 6, owner.address);
     console.log(ust.address,ethers.BigNumber.from("1000000000000000000"))
     await ust.mint(owner.address, ethers.BigNumber.from("1000000000000000000"));
@@ -65,12 +110,12 @@ describe("core", function () {
     await dai.mint(owner.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await dai.mint(owner2.address, ethers.BigNumber.from("1000000000000000000000000000000"));
     await dai.mint(owner3.address, ethers.BigNumber.from("1000000000000000000000000000000"));
-    ve_underlying = await token.deploy('VE', 'VE', 18, owner.address);
+    ve_underlying = await token.deploy('VE', 'VE', 18, owner.address) ;
     await ve_underlying.mint(owner.address, ethers.BigNumber.from("20000000000000000000000000"));
     await ve_underlying.mint(owner2.address, ethers.BigNumber.from("10000000000000000000000000"));
     await ve_underlying.mint(owner3.address, ethers.BigNumber.from("10000000000000000000000000"));
     console.log(ust.address,mim.address,dai.address,ve_underlying.address,"three coins and underlying address")
-    vecontract = await ethers.getContractFactory("contracts/ve.sol:ve");
+    const vecontract = await ethers.getContractFactory("contracts/ve.sol:ve") as Ve__factory;
     ve = await vecontract.deploy(ve_underlying.address);
     console.log(ve.address,"ve address")
 
@@ -145,7 +190,7 @@ describe("core", function () {
   });
 
   it("deploy BaseV1Factory and test pair length", async function () {
-    const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory");
+    const BaseV1Factory = await ethers.getContractFactory("BaseV1Factory") as BaseV1__factory;
     factory = await BaseV1Factory.deploy();
     await factory.deployed();
     console.log(factory.address,"factory address")
@@ -361,7 +406,7 @@ describe("core", function () {
 
   it("deploy BaseV1Minter", async function () {
     const VeDist = await ethers.getContractFactory("contracts/ve_dist.sol:ve_dist");
-    ve_dist = await VeDist.deploy(ve.address, ve_underlying.address, owner.address);
+    const ve_dist = await VeDist.deploy(ve.address, ve_underlying.address, owner.address);
     await ve_dist.deployed();
     console.log(ve_dist.address,"ve_dist address")
 
@@ -380,7 +425,7 @@ describe("core", function () {
     await gauge_factory.createGauge(pair3.address);
     expect(await gauge_factory.gauges(pair.address)).to.not.equal(0x0000000000000000000000000000000000000000);
 
-    sr = await ethers.getContractFactory("StakingRewards");
+    const ssr = await ethers.getContractFactory("StakingRewards");
     staking = await sr.deploy(pair.address, ve_underlying.address);
     console.log(staking.address,"staking address")
 
@@ -568,9 +613,9 @@ describe("core", function () {
     const ust_1 = ethers.BigNumber.from("1000000");
     const route = {from:ust.address, to:mim.address, stable:true}
 
-    metadata = await pair.metadata()
+    const metadata = await pair.metadata()
     const roots = await ethers.getContractFactory("roots");
-    root = await roots.deploy(metadata.dec0, metadata.dec1, metadata.st, metadata.t0, metadata.t1);
+    const root = await roots.deploy(metadata.dec0, metadata.dec1, metadata.st, metadata.t0, metadata.t1);
     await root.deployed();
     console.log(root.address,"root address")
 
