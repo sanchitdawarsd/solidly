@@ -149,18 +149,16 @@ function distribute(address token) external
 | Name | Address |
 | :--- | :--- |
 | wFTM| [0x27Ce41c3cb9AdB5Edb2d8bE253A1c6A64Db8c96d](https://mumbai.polygonscan.com/address/0x99B92f7b3C65152Eb7654b7e0bdb08C659077CaA#code) |
-| USDT| [0x8ad96050318043166114884b59E2fc82210273b3](https://mumbai.polygonscan.com/address/0x8ad96050318043166114884b59E2fc82210273b3#code) |
-| MIM | [0x976e33B07565b0c05B08b2e13AfFD3113e3D178d](https://mumbai.polygonscan.com/address/0x976e33B07565b0c05B08b2e13AfFD3113e3D178d#code) |
 | BaseV1 | [0x061a017847A7baB75aC52b99eAb22A19d50F44eb](https://mumbai.polygonscan.com/address/0xfc5072BBfAB497346eEc2e6CAb0b28cbF2c1c4aC#code) |
 
 | Name | Address |
 | :--- | :--- |
-| BaseV1Factory | [0xe6367958e8297cb8bdC4B99BC15Ae402Ebf41baA](https://mumbai.polygonscan.com/address/0x5B1E5E820a0D1136d9176e4c8A80a1fd0721C3Eb#code) |
-| BaseV1BribeFactory | [0x409Ae97fBFb9Aff407766B40a9c170DC9cc1aC76](https://mumbai.polygonscan.com/address/0xf30c485a3A4610BDA6A57C1E4655aE7b0Eccd138#code) |
-| BaseV1GaugesFactory | [0x572346756f961c379888235dd950CFB6a4496b17](https://mumbai.polygonscan.com/address/0x987669C549d6630c4d54Ae45C476120b05f93757#code) |
-| BaseV1Router01 | [0x04583f12bF185f11d1B3783894Acaa29dCE6547A](https://mumbai.polygonscan.com/address/0xE5349A26FEdC25BF68d7aCe495AffE3029DaDfed#code) |
-| BaseV1Voter | [0x3c137d25FAC210C211Eb523da31542B8A115f7F8](https://mumbai.polygonscan.com/address/0x3c137d25FAC210C211Eb523da31542B8A115f7F8#code) |
-| veNFT | [0xDa38D8c66e7b3190f98570b7965A8825BDdfee6D](https://mumbai.polygonscan.com/address/0x4d90f3607f65CEbB237De531BB3471cc3D8f4D01#code) |
-| veNFT-dist | [0x2D8c86F8D47511D92E40B370A43c45b1d2C9805B](https://mumbai.polygonscan.com/address/0x704A2Afc98A59E2C22Afb77A7E72C3d3fabC9e82#code) |
-| BaseV1Minter | [0x190305e3D36648613572c5dCD366bcD496e9c75D](https://mumbai.polygonscan.com/address/0x190305e3D36648613572c5dCD366bcD496e9c75D#code) |
+| BaseV1Factory | [0x5B1E5E820a0D1136d9176e4c8A80a1fd0721C3Eb](https://mumbai.polygonscan.com/address/0x5B1E5E820a0D1136d9176e4c8A80a1fd0721C3Eb#code) |
+| BaseV1BribeFactory | [0xf30c485a3A4610BDA6A57C1E4655aE7b0Eccd138](https://mumbai.polygonscan.com/address/0xf30c485a3A4610BDA6A57C1E4655aE7b0Eccd138#code) |
+| BaseV1GaugesFactory | [0x987669C549d6630c4d54Ae45C476120b05f93757](https://mumbai.polygonscan.com/address/0x987669C549d6630c4d54Ae45C476120b05f93757#code) |
+| BaseV1Router01 | [0xE5349A26FEdC25BF68d7aCe495AffE3029DaDfed](https://mumbai.polygonscan.com/address/0xE5349A26FEdC25BF68d7aCe495AffE3029DaDfed#code) |
+| BaseV1Voter | [0x5E0eF77CC877b2f3aeB8a110cC892230620967a5](https://mumbai.polygonscan.com/address/0x5E0eF77CC877b2f3aeB8a110cC892230620967a5#code) |
+| veNFT | [0x4d90f3607f65CEbB237De531BB3471cc3D8f4D01](https://mumbai.polygonscan.com/address/0x4d90f3607f65CEbB237De531BB3471cc3D8f4D01#code) |
+| veNFT-dist | [0x704A2Afc98A59E2C22Afb77A7E72C3d3fabC9e82](https://mumbai.polygonscan.com/address/0x704A2Afc98A59E2C22Afb77A7E72C3d3fabC9e82#code) |
+| BaseV1Minter | [0x4775c9714Cb94E78A86b5D3f62E889F0aC765048](https://mumbai.polygonscan.com/address/0x4775c9714Cb94E78A86b5D3f62E889F0aC765048#code) |
 
